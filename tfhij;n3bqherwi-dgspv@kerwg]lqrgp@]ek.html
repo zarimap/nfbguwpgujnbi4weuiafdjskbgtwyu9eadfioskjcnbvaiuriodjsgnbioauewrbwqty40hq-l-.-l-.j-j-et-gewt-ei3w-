@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>市場データ取得</title>
+</head>
+<body>
+    <h1>現在の市場データ</h1>
+    <div id="fx-rate">ドル円: 読み込み中...</div>
+    <div id="nikkei-price">日経平均: 読み込み中...</div>
+
+    <script>
+        const API_KEY = 'LJOJ1Q3YFUCQPTS0'; // あなたのAPIキーを入力
+
+        // 1. ドル円の取得
+        async function fetchFx() {
+            const url = `https://alphavantage.co{API_KEY}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const rate = data["Realtime Currency Exchange Rate"]["5. Exchange Rate"];
+                document.getElementById('fx-rate').innerText = `ドル円: ${parseFloat(rate).toFixed(2)} 円`;
+            } catch (error) {
+                document.getElementById('fx-rate').innerText = 'ドル円: 取得エラー';
+            }
+        }
+
+        // 2. 日経平均株価の取得
+        async function fetchNikkei() {
+            const url = `https://alphavantage.co^N225&apikey=${API_KEY}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                // 最新の日付のデータを取得
+                const timeSeries = data["Time Series (Daily)"];
+                const latestDate = Object.keys(timeSeries)[0];
+                const closePrice = timeSeries[latestDate]["4. close"];
+                
+                document.getElementById('nikkei-price').innerText = `日経平均株価: ${parseFloat(closePrice).toLocaleString()} 円 (${latestDate} 終値)`;
+            } catch (error) {
+                document.getElementById('nikkei-price').innerText = '日経平均: 取得エラー';
+            }
+        }
+
+        // 画面ロード時に実行
+        fetchFx();
+        fetchNikkei();
+    </script>
+</body>
+</html>
